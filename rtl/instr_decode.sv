@@ -16,6 +16,9 @@ module instr_decode #(
     output logic [n_rd_ports-1:0][wd_addr_p-1:0] o_reg_rd_addr,
     input logic [n_rd_ports-1:0][wd_regs_p-1:0]  i_reg_rd_data,
 
+    // Output to ALU
+    output instr_type_t                         o_instr,
+
     output operation_t o_decoded_instr
 );
     
@@ -34,6 +37,7 @@ module instr_decode #(
             // Simple funct7/funct3 extraction
             decode_v.funct7 = i_instr[31:25];
             decode_v.funct3 = i_instr[14:12];
+            decode_v.imm_sign = i_instr[31];
             
             // Extract instruction type
             case (i_instr[6:0]) 
