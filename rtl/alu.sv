@@ -26,20 +26,36 @@ module alu #(
     always_ff @(posedge clk) begin
         if (!rst_n) begin
             o_result <= '0;
+            o_pc <= '0;
         end else begin
+            // Default assignments
+            o_pc <= i_pc;
             case (i_instr)
+                // Register-immediate
                 ADDI: o_result <= i_arg1 + arg2_se;
                 SLTI: o_result <= (i_arg1 < arg2_se) ? 1 : 0;   // TODO: Convert to signed comparison!
                 SLTIU: o_result <= (i_arg1 < arg2_se) ? 1 : 0;
                 ANDI: o_result <= i_arg1 & arg2_se;
                 ORI: o_result <= i_arg1 | arg2_se;
                 XORI: o_result <= i_arg1 ^ arg2_se;
-                ADD: o_result <= i_arg1 + i_arg2;
                 SLLI: o_result <= i_arg1 << shamt;
                 SRLI: o_result <= i_arg1 >> shamt;
                 SRAI: o_result <= i_arg1 >>> shamt;             // TODO: Check with signed inputs
                 LUI: o_result <=  {i_arg2[19:0], 12'b0};        // TODO: Think about separate port for immediates?  
                 AUIPC: o_pc    <= i_pc + {i_arg2[19:0], 12'b0};
+
+                // Register-register
+                ADD: o_result <= i_arg1 + i_arg2;
+                SLT: o_result <= (i_arg1 < i_arg2) ? 1 : 0;     // TODO: Convert to signed comparison!
+                SLTU: o_result <= (i_arg1 < i_arg2) ? 1 : 0;
+                AND: o_result <= i_arg1 & i_arg2;
+                OR: o_result <= i_arg1 | i_arg2;
+                XOR: o_result <= i_arg1 ^ i_arg2;
+                SLLI: o_result <= i_arg1 << shamt;              // TODO: Ensure shamt comes from reg and not immediate?
+                SRLI: o_result <= i_arg1 >> shamt;
+                SRA: o_result <= i_arg1 >>> shamt;              // TODO: Check with signed inputs
+                SUB: o_result <= i_arg1 - i_arg2;
+
                 default: o_result <= '0;
             endcase
         end
