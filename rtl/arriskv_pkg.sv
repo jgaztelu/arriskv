@@ -28,6 +28,7 @@ package arriskv_pkg;
         logic [6:0] funct7;
         logic [2:0] funct3;
         logic       imm_sign;
+        logic       jump;
     } operation_t;   
 
     typedef struct packed {
@@ -35,7 +36,8 @@ package arriskv_pkg;
         logic [31:0] arg1;
         logic [31:0] arg2;
         logic [19:0] imm;
-        logic [4:0]  rdest;       
+        logic [4:0]  rdest;   
+        logic        jump;  // Jump type operation    
     } decoded_op_t;
 
 endpackage
