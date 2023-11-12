@@ -18,6 +18,7 @@ module instr_decode #(
 
     // Output to ALU
     output instr_type_t                         o_instr,
+    output logic                                o_jump,             // Jump type operation
 
     output operation_t o_decoded_instr
 );
@@ -41,11 +42,14 @@ module instr_decode #(
             
             // Extract instruction type
             case (i_instr[6:0]) 
+                6'b0000011: decode_v.instr_type = IL;
+                6'b0100011: decode_v.instr_type = IS;
                 6'b0110011: decode_v.instr_type = R;
                 6'b0010011: decode_v.instr_type = I;
                 6'b0100011: decode_v.instr_type = S;
                 6'b1100011: decode_v.instr_type = B;
                 6'b0110111: decode_v.instr_type = U;
+                6'b1100111: decode_v.instr_type = IJ;    // Only used for JALR? TODO: Check this
                 6'b1101111: decode_v.instr_type = J;
                 default: decode_v.instr_type = I; // Shouldn't get here, use I as default for the moment
             endcase            
@@ -61,36 +65,38 @@ module instr_decode #(
             endcase
 
             // Extract opcode
-            case (i_instr[6:5])
-                2'b00: begin
-                    case (i_instr[4:2])
-                        3'b000: decode_v.opcode = LOAD;
-                        3'b100: decode_v.opcode = OP_IMM;
-                        //3'b101: decode_v.opcode = AUIPC;
-                        default: decode_v.opcode = NOP;
-                    endcase
-                end
-                2'b01: begin
-                    case (i_instr[4:2])
-                        3'b000: decode_v.opcode = STORE;
-                        3'b100: decode_v.opcode = OP;
-                        //3'b101: decode_v.opcode = LUI;
-                        default: decode_v.opcode = NOP;
-                    endcase
-                end
-                2'b10: begin
-                    decode_v.opcode = NOP;
-                end
-                2'b11: begin
-                    case (i_instr[4:2])
-                        3'b000: decode_v.opcode = BRANCH;
-                        3'b001: decode_v.opcode = JALR;
-                        3'b011: decode_v.opcode = JAL;
-                        3'b100: decode_v.opcode = SYSTEM;
-                        default: decode_v.opcode = NOP;                       
-                    endcase
-                end
-            endcase
+            // case (i_instr[6:5])
+            //     2'b00: begin
+            //         case (i_instr[4:2])
+            //             3'b000: decode_v.opcode = LOAD;
+            //             3'b100: decode_v.opcode = OP_IMM;
+            //             //3'b101: decode_v.opcode = AUIPC;
+            //             default: decode_v.opcode = NOP;
+            //         endcase
+            //     end
+            //     2'b01: begin
+            //         case (i_instr[4:2])
+            //             3'b000: decode_v.opcode = STORE;
+            //             3'b100: decode_v.opcode = OP;
+            //             //3'b101: decode_v.opcode = LUI;
+            //             default: decode_v.opcode = NOP;
+            //         endcase
+            //     end
+            //     2'b10: begin
+            //         decode_v.opcode = NOP;
+            //     end
+            //     2'b11: begin
+            //         case (i_instr[4:2])
+            //             3'b000: decode_v.opcode = BRANCH;
+            //             //3'b001: decode_v.opcode = JALR;
+            //             //3'b011: decode_v.opcode = JAL;
+            //             3'b100: decode_v.opcode = SYSTEM;
+            //             default: decode_v.opcode = NOP;                       
+            //         endcase
+            //     end
+            // endcase
+            decode_v.instruction <= NOP;
+            o_jump <= 0;
             case (decode_v.instr_type)
                 I: begin
                     case (decode_v.funct3)
@@ -134,7 +140,48 @@ module instr_decode #(
                             endcase
                         end
                     endcase
-                end              
+                end     
+
+                J: begin
+                    decode_v.instruction = JAL;
+                    o_jump <= 1;
+                end
+
+                IJ: begin
+                    decode_v.instruction = JALR;
+                    o_jump <= 1;
+                end
+
+                B: begin
+                    o_jump <= 1;
+                    case (decode_v.funct3)
+                        3'b000: decode_v.instruction = BEQ;
+                        3'b001: decode_v.instruction = BNE;
+                        3'b100: decode_v.instruction = BLT;
+                        3'b101: decode_v.instruction = BGE;
+                        3'b110: decode_v.instruction = BLTU;
+                        3'b111: decode_v.instruction = BGEU;
+                    endcase 
+                end
+
+                IL: begin
+                    case (decode_v.funct3)
+                        3'b000: decode_v.instruction = LB;
+                        3'b001: decode_v.instruction = LH;
+                        3'b010: decode_v.instruction = LW;
+                        3'b100: decode_v.instruction = LBU;
+                        3'b101: decode_v.instruction = LHU;
+                    endcase 
+                end
+
+                IS: begin
+                    case (decode_v.funct3)
+                        3'b000: decode_v.instruction = SB;
+                        3'b001: decode_v.instruction = SH;
+                        3'b010: decode_v.instruction = SW;
+                    endcase
+                end
+
             endcase
 
 
