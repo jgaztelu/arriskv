@@ -34,9 +34,16 @@ module reg_file #(
         end
     end
 
-    always_ff @(posedge clk) begin: reg_file_rd_proc
+    // always_ff @(posedge clk) begin: reg_file_rd_proc_ff
+    //     for (int i=0; i<n_rd_ports; i++) begin
+    //         o_reg_rd_data[i] <= reg_file[i_reg_rd_addr[i]];
+    //     end
+    // end
+
+    // Combinational read
+    always_comb begin : reg_file_rd_proc_comb
         for (int i=0; i<n_rd_ports; i++) begin
-            o_reg_rd_data[i] <= reg_file[i_reg_rd_addr[i]];
+            o_reg_rd_data[i] = reg_file[i_reg_rd_addr[i]];
         end
     end
 
