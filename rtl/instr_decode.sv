@@ -1,7 +1,7 @@
 import arriskv_pkg::*;
 
 module instr_decode #(
-    parameter wd_instr_p = 32,
+    parameter int wd_instr_p = 32,
     parameter int n_regs_p = 32,
     parameter int wd_regs_p = 32,
     parameter int n_rd_ports = 2,
@@ -17,10 +17,8 @@ module instr_decode #(
     input logic [n_rd_ports-1:0][wd_regs_p-1:0]  i_reg_rd_data,
 
     // Output to ALU
-    output instr_type_t                         o_instr,
-    output logic                                o_jump,             // Jump type operation
+    output instr_type_t                         o_instr
 
-    output decoded_op_t o_decoded_instr
 );
     
     operation_t instr_decoded;
@@ -28,7 +26,7 @@ module instr_decode #(
     always_ff @(posedge clk) begin
         operation_t decode_v;
         if (!rst_n) begin
-            o_decoded_instr <= '0;
+            o_instr <= '0;
         end else begin
             decode_v = '0;
             // Simple rs1/rs2/rd extraction, always get assigned even if not needed
@@ -96,7 +94,7 @@ module instr_decode #(
             //     end
             // endcase
             decode_v.instruction <= NOP;
-            o_jump <= 0;
+            decode_v.jump <= 0;
             case (decode_v.instr_type)
                 I: begin
                     case (decode_v.funct3)
@@ -144,16 +142,16 @@ module instr_decode #(
 
                 J: begin
                     decode_v.instruction = JAL;
-                    o_jump <= 1;
+                    decode_v.jump <= 1;
                 end
 
                 IJ: begin
                     decode_v.instruction = JALR;
-                    o_jump <= 1;
+                    decode_v.jump <= 1;
                 end
 
                 B: begin
-                    o_jump <= 1;
+                    decode_v.jump <= 1;
                     case (decode_v.funct3)
                         3'b000: decode_v.instruction = BEQ;
                         3'b001: decode_v.instruction = BNE;
@@ -187,12 +185,14 @@ module instr_decode #(
 
             o_reg_rd_addr[0] <= decode_v.rs1;
             o_reg_rd_addr[1] <= decode_v.rs2;
+            
             // Assign outputs towards execution stage
-            o_decoded_instr.op <= decode_v.instruction;
-            o_decoded_instr.imm <= decode_v.immediate;
-            o_decoded_instr.rdest <= decode_v.rdest;
-            o_decoded_instr.arg1 <= '0;
-            o_decoded_instr.arg2 <= '0;
+            o_instr.op <= decode_v.instruction;
+            o_instr.imm <= decode_v.immediate;
+            o_instr.rdest <= decode_v.rdest;
+            o_instr.arg1 <= '0;
+            o_instr.arg2 <= '0;
+            o_instr.jump <= decode_v.jump;
         end
     end
 

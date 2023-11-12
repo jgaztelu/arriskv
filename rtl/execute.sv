@@ -1,16 +1,15 @@
 module execute #(
     parameter int wd_regs_p = 32
 ) (
-    input logic clk,
-    input logic rst_n,
+    input logic                 clk,
+    input logic                 rst_n,
     // Inputs from register file
     input logic [wd_regs_p-1:0] i_reg1,
     input logic [wd_regs_p-1:0] i_reg2,
     // Decoded instruction
-    input decoded_op_t          i_dec_op,
-    input logic i_jump,
     input logic [wd_regs_p-1:0] i_pc,
-    input logic instruction  // TODO: Replace placeholder with decoded instruction interface
+    // Decoded operation
+    input decoded_op_t          i_dec_op
 );
 
     decoded_op_t decoded_op;
@@ -45,10 +44,7 @@ module execute #(
         // Input arguments
         .i_arg1    (i_arg1),
         .i_arg2    (i_arg2),
-        .i_jump    (i_jump),
-        // Jump type operation 
         // Instruction
-        //input  instr_type_t     i_instr_type
         .i_instr   (i_instr)
     );
 
