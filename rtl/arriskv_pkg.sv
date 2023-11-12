@@ -1,17 +1,25 @@
 package arriskv_pkg;
-    typedef enum logic[2:0]{R,I,S,B,U,J} instr_type_t;
-    typedef enum logic[3:0]{OP_IMM,/*LUI,AUIPC*/OP,JAL,JALR,BRANCH,LOAD,STORE,MISC_MEM,SYSTEM,NOP} opcode_t;
+    // Instruction types according to ISA opcodes (RISBUJ)
+    // Special types for different opcodes with same instruction type: IJ (Integer jump), IL (Integer load), IS (Integer store)
+    typedef enum logic[3:0]{R,I,S,B,U,J,IJ,IL,IS} instr_type_t;
+    //typedef enum logic[3:0]{OP_IMM,/*LUI,AUIPC*/OP,/*JAL,JALR,*/BRANCH,LOAD,STORE,MISC_MEM,SYSTEM,NOP} opcode_t;
     typedef enum {  /* Integer instructions */
                     /* Register immediate */
                     ADDI,SLTI,SLTIU,ANDI,ORI,XORI,SLLI,SRLI,SRAI, // I-type
                     LUI,AUIPC,                                     // U-type  
                     /* Register-Register instructions */
-                    ADD,SLT,SLTU,AND,OR,XOR,SLL,SRL,SUB,SRA
+                    ADD,SLT,SLTU,AND,OR,XOR,SLL,SRL,SUB,SRA,
+                    /* Control transfer instructions */
+                    JAL,JALR,BEQ,BNE,BLT,BLTU,BGE,BGEU,
+                    /* Load/store instructions */
+                    LB,LH,LW,LBU,LHU,SB,SH,SW,
+                    /* NOP instruction */
+                    NOP
                     } instr_t;
     
     typedef struct packed {
         instr_type_t instr_type;
-        opcode_t    opcode;
+        //logic [6:0]    opcode;
         instr_t     instruction;
         logic [4:0] rs1;
         logic [4:0] rs2;
