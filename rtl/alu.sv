@@ -14,7 +14,8 @@ module alu #(
     // Instruction
     input  instr_t          i_instr,
     input  instr_type_t     i_instr_type,
-    output logic [wd_regs_p-1:0] o_result
+    output logic [wd_regs_p-1:0] o_result,
+    output logic [wd_regs_p-1:0] o_rdest
     
 );
     logic [wd_regs_p-1:0] arg1_se;
@@ -23,13 +24,14 @@ module alu #(
     
     assign shamt = i_arg2[4:0];
 
-    always_ff @(posedge clk) begin
+    always_ff @(posedge clk) begin : arith_proc
         if (!rst_n) begin
             o_result <= '0;
-            o_pc <= '0;
+            //o_pc <= '0;
         end else begin
             // Default assignments
-            o_pc <= i_pc;
+            //o_pc <= i_pc;
+            o_result <= '0;
             case (i_instr)
                 // Register-immediate
                 ADDI: o_result <= i_arg1 + arg2_se;
@@ -42,8 +44,7 @@ module alu #(
                 SRLI: o_result <= i_arg1 >> shamt;
                 SRAI: o_result <= i_arg1 >>> shamt;             // TODO: Check with signed inputs
                 LUI: o_result <=  {i_arg2[19:0], 12'b0};        // TODO: Think about separate port for immediates?  
-                AUIPC: o_pc    <= i_pc + {i_arg2[19:0], 12'b0};
-
+                
                 // Register-register
                 ADD: o_result <= i_arg1 + i_arg2;
                 SLT: o_result <= (i_arg1 < i_arg2) ? 1 : 0;     // TODO: Convert to signed comparison!
@@ -55,11 +56,17 @@ module alu #(
                 SRLI: o_result <= i_arg1 >> shamt;
                 SRA: o_result <= i_arg1 >>> shamt;              // TODO: Check with signed inputs
                 SUB: o_result <= i_arg1 - i_arg2;
+                AUIPC: o_result    <= i_pc + {i_arg2[19:0], 12'b0};
+
+                // New address calculation / Jumps
+                JAL: o_result <= i_pc + arg2_se[20:0];          // TODO: Implement actual jump behavior
+                JALR: o_result <= i_arg1 + arg2_se[11:0];       // TODO: Implement actual jump behavior
 
                 default: o_result <= '0;
             endcase
         end
     end
+
     
     sign_extend #(
         .wd_regs_p(wd_regs_p)
