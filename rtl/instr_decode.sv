@@ -20,7 +20,7 @@ module instr_decode #(
     output instr_type_t                         o_instr,
     output logic                                o_jump,             // Jump type operation
 
-    output operation_t o_decoded_instr
+    output decoded_op_t o_decoded_instr
 );
     
     operation_t instr_decoded;
@@ -187,7 +187,12 @@ module instr_decode #(
 
             o_reg_rd_addr[0] <= decode_v.rs1;
             o_reg_rd_addr[1] <= decode_v.rs2;
-            o_decoded_instr <= decode_v;
+            // Assign outputs towards execution stage
+            o_decoded_instr.op <= decode_v.instruction;
+            o_decoded_instr.imm <= decode_v.immediate;
+            o_decoded_instr.rdest <= decode_v.rdest;
+            o_decoded_instr.arg1 <= '0;
+            o_decoded_instr.arg2 <= '0;
         end
     end
 

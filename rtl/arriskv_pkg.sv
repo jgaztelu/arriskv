@@ -28,5 +28,14 @@ package arriskv_pkg;
         logic [6:0] funct7;
         logic [2:0] funct3;
         logic       imm_sign;
-    } operation_t;    
+    } operation_t;   
+
+    typedef struct packed {
+        instr_t op;
+        logic [31:0] arg1;
+        logic [31:0] arg2;
+        logic [19:0] imm;
+        logic [4:0]  rdest;       
+    } decoded_op_t;
+
 endpackage
