@@ -10,14 +10,14 @@ module sign_extend #(
 
     always_comb begin : sign_extend_proc
         case (i_instr_type)
-            I: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};
-            IJ: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};
-            IL: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};
+            I,IJ,IL,S: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};  //12b imm
+            //IJ: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};
+            //IL: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};
             //IS: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};
-            S: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};
-            B: o_sign_ext = {{(wd_regs_p - 13) {i_immediate[12]}}, i_immediate[12:0]};
-            U: o_sign_ext = {{(wd_regs_p - 20) {i_immediate[19]}}, i_immediate[19:0]};
-            J: o_sign_ext = {{(wd_regs_p - 20) {i_immediate[19]}}, i_immediate[19:0]};
+            //S: o_sign_ext = {{(wd_regs_p - 12) {i_immediate[11]}}, i_immediate[11:0]};
+            B: o_sign_ext = {{(wd_regs_p - 13) {i_immediate[12]}}, i_immediate[12:0]};          //13b imm
+            U,J: o_sign_ext = {{(wd_regs_p - 20) {i_immediate[19]}}, i_immediate[19:0]};        //20b imm
+            //J: o_sign_ext = {{(wd_regs_p - 20) {i_immediate[19]}}, i_immediate[19:0]};
             default: o_sign_ext = i_immediate;
         endcase
     end
