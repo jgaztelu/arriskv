@@ -3,14 +3,17 @@ module execute #(
     parameter int wd_regs_p  = 32,
     parameter int n_rd_ports = 2
 ) (
-    input logic                                        clk,
-    input logic                                        rst_n,
+    input  logic                                        clk,
+    input  logic                                        rst_n,
     // Inputs from register file
-    input logic        [n_rd_ports-1:0][wd_regs_p-1:0] i_reg_rd_data,
-    // Decoded instruction
-    input logic        [ wd_regs_p-1:0]                i_pc,
+    input  logic        [n_rd_ports-1:0][wd_regs_p-1:0] i_reg_rd_data,
+    // Program counter input
+    input  logic        [ wd_regs_p-1:0]                i_pc,
     // Decoded operation
-    input decoded_op_t                                 i_dec_op
+    input  decoded_op_t                                 i_dec_op,
+    // Jump/branch
+    output logic                                        o_br_taken,
+    output logic        [ wd_regs_p-1:0]                o_jmp_addr
 );
 
     decoded_op_t decoded_op;
@@ -51,7 +54,7 @@ module execute #(
         // Input arguments
         .i_arg1    (),
         .i_arg2    (),
-        .i_op      (decoded_op),
+        .i_op      (o_jmp_addr),
         // Instruction
         .i_instr   (i_instr)
     );
