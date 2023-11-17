@@ -9,7 +9,7 @@ package arriskv_pkg;
         U,
         J,
         IJ,
-        IL/*,
+        IL   /*,
         IS*/
     } instr_type_t;
     //typedef enum logic[3:0]{OP_IMM,/*LUI,AUIPC*/OP,/*JAL,JALR,*/BRANCH,LOAD,STORE,MISC_MEM,SYSTEM,NOP} opcode_t;
@@ -71,6 +71,8 @@ package arriskv_pkg;
         logic [2:0]  funct3;
         logic        imm_sign;
         logic        jump;
+        logic        load;
+        logic        store;
     } operation_t;
 
     typedef struct packed {
@@ -82,7 +84,10 @@ package arriskv_pkg;
         logic [19:0] imm;
         logic [31:0] imm_se;
         logic [4:0]  rdest;
-        logic        jump;     // Jump type operation    
+        logic [31:0] ex_result;  // Execution result
+        logic        jump;       // Jump type operation    
+        logic        load;
+        logic        store;
     } decoded_op_t;
 
 endpackage
