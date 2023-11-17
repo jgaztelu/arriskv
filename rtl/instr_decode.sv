@@ -59,39 +59,11 @@ module instr_decode #(
             J: decode_v.immediate = {7'b0, i_instr[31], i_instr[19:12], i_instr[20], i_instr[30:21], 1'b0};  // Pad with zero for branch addresses
         endcase
 
-        // Extract opcode
-        // case (i_instr[6:5])
-        //     2'b00: begin
-        //         case (i_instr[4:2])
-        //             3'b000: decode_v.opcode = LOAD;
-        //             3'b100: decode_v.opcode = OP_IMM;
-        //             //3'b101: decode_v.opcode = AUIPC;
-        //             default: decode_v.opcode = NOP;
-        //         endcase
-        //     end
-        //     2'b01: begin
-        //         case (i_instr[4:2])
-        //             3'b000: decode_v.opcode = STORE;
-        //             3'b100: decode_v.opcode = OP;
-        //             //3'b101: decode_v.opcode = LUI;
-        //             default: decode_v.opcode = NOP;
-        //         endcase
-        //     end
-        //     2'b10: begin
-        //         decode_v.opcode = NOP;
-        //     end
-        //     2'b11: begin
-        //         case (i_instr[4:2])
-        //             3'b000: decode_v.opcode = BRANCH;
-        //             //3'b001: decode_v.opcode = JALR;
-        //             //3'b011: decode_v.opcode = JAL;
-        //             3'b100: decode_v.opcode = SYSTEM;
-        //             default: decode_v.opcode = NOP;                       
-        //         endcase
-        //     end
-        // endcase
-        decode_v.instruction <= NOP;
-        decode_v.jump <= 0;
+        decode_v.instruction = NOP;
+        decode_v.jump = 0;
+        decode_v.store = 0;
+        decode_v.load = 0;
+
         case (decode_v.instr_type)
             I: begin
                 case (decode_v.funct3)
@@ -114,7 +86,6 @@ module instr_decode #(
             end
 
             R: begin
-                // TODO: Add funct7 (bit 30 instrus)
                 case (decode_v.funct7)
                     7'b0000000: begin
                         case (decode_v.funct3)
@@ -139,16 +110,16 @@ module instr_decode #(
 
             J: begin
                 decode_v.instruction = JAL;
-                decode_v.jump <= 1;
+                decode_v.jump = 1;
             end
 
             IJ: begin
                 decode_v.instruction = JALR;
-                decode_v.jump <= 1;
+                decode_v.jump = 1;
             end
 
             B: begin
-                decode_v.jump <= 1;
+                decode_v.jump = 1;
                 case (decode_v.funct3)
                     3'b000: decode_v.instruction = BEQ;
                     3'b001: decode_v.instruction = BNE;
@@ -160,6 +131,7 @@ module instr_decode #(
             end
 
             IL: begin
+                decode_v.store = 1;
                 case (decode_v.funct3)
                     3'b000: decode_v.instruction = LB;
                     3'b001: decode_v.instruction = LH;
@@ -170,6 +142,7 @@ module instr_decode #(
             end
 
             S: begin
+                decode_v.store = 1;
                 case (decode_v.funct3)
                     3'b000: decode_v.instruction = SB;
                     3'b001: decode_v.instruction = SH;
@@ -178,7 +151,6 @@ module instr_decode #(
             end
 
         endcase
-
     end
 
     always_ff @(posedge clk) begin
@@ -194,8 +166,11 @@ module instr_decode #(
             o_instr.rdest <= decode_v.rdest;
             o_instr.arg1 <= '0;
             o_instr.arg2 <= '0;
-            o_instr.jump <= decode_v.jump;
             o_instr.imm_se <= imm_se;
+            o_instr.ex_result <= '0;
+            o_instr.jump <= decode_v.jump;
+            o_instr.load <= decode_v.load;
+            o_instr.store <= decode_v.store;
         end
     end
 
