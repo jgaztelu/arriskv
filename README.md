@@ -10,8 +10,8 @@ https://www.youtube.com/watch?v=iml0DBo5yqo
 
 # TO-DO
 - [x] Implement base instruction set (RV32I)
-- [ ] Compile simple programs in gcc freestanding mode to test CPU
-- [ ] Setup cocotb for simulation
+- [ ] Compile simple programs in gcc freestanding mode to test CPU (in progress)
+- [ ] Setup cocotb for simulation (in progress)
 - [ ] Implement multiplication extensions (RV32M)
 - [ ] Implement floating point extensions (RV32F)(maybe?)
 - [ ] Implement remaining extensions for general-purpose software (RV32G)
