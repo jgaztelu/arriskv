@@ -19,6 +19,10 @@ module arriskv_top #(
 );
 
     decoded_op_t                                     decoded_op;
+    decoded_op_t                                     executed_op;
+    decoded_op_t                                     mem_op;
+
+
 
     // Internal BRAM signals
     logic        [     wd_regs_p-1:0]                ram_rd_addr;
@@ -101,9 +105,37 @@ module arriskv_top #(
         .i_dec_op     (decoded_op),
         // Jump/branch
         .o_br_taken   (jmp),
-        .o_jmp_addr   (jmp_addr)
+        .o_jmp_addr   (jmp_addr),
+        .o_ex_op      (executed_op)
     );
 
+    mem_access #(
+        .wd_regs_p(32)
+    ) mem_access_i (
+        .clk          (clk),
+        .rst_n        (rst_n),
+        // In/out operations
+        .i_op         (executed_op),
+        .o_op         (mem_op),
+        // Mem. interface
+        .o_mem_rd_addr(o_mem_rd_addr),
+        .i_mem_rd_data(i_mem_rd_data),
+        .o_mem_wr_en  (o_mem_wr_en),
+        .o_mem_wr_addr(o_mem_wr_addr),
+        .o_mem_wr_data(o_mem_wr_data)
+    );
+
+    reg_writeback #(
+        .wd_regs_p(32),
+        .n_regs_p (32)
+    ) reg_writeback_i (
+        .clk(clk),
+        .rst_n(rst_n),
+        .i_op(mem_op),
+        .o_wr_en(reg_wr_en),
+        .o_reg_wr_addr(reg_wr_addr),
+        .o_reg_wr_data(reg_wr_data)
+    );
     // ram #(
     //     .ram_size_p(1024)
     // ) ram_i (
@@ -117,5 +149,5 @@ module arriskv_top #(
     // );
 
     assign o_mem_rd_addr = ram_rd_addr;
-    assign ram_rd_data = i_mem_rd_data;
+    assign ram_rd_data   = i_mem_rd_data;
 endmodule

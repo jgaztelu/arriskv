@@ -13,7 +13,9 @@ module execute #(
     input  decoded_op_t                                 i_dec_op,
     // Jump/branch
     output logic                                        o_br_taken,
-    output logic        [ wd_regs_p-1:0]                o_jmp_addr
+    output logic        [ wd_regs_p-1:0]                o_jmp_addr,
+    // Executed operation
+    output decoded_op_t                                 o_ex_op
 );
 
     decoded_op_t decoded_op;
@@ -26,19 +28,14 @@ module execute #(
     alu #(
         .wd_regs_p(wd_regs_p)
     ) alu_i (
-        .clk         (clk),
-        .rst_n       (rst_n),
+        .clk  (clk),
+        .rst_n(rst_n),
         // Program counter
-        .i_pc        (i_pc),
-        // Input arguments
-        .i_arg1      (),
-        .i_arg2      (),
-        .i_op        (decoded_op),
-        // Instruction
-        .i_instr     (i_instr),
-        .i_instr_type(i_instr_type),
-        .o_result    (o_result),
-        .o_rdest     (o_rdest)
+        .i_pc (i_pc),
+        // Input operation
+        .i_op (decoded_op),
+        // Outputs
+        .o_op (o_ex_op)
     );
 
     branching #(
@@ -48,15 +45,11 @@ module execute #(
         .rst_n     (rst_n),
         // Program counter
         .i_pc      (i_pc),
-        .o_pc      (o_pc),
-        .o_br_taken(o_br_taken),
         // Branch taken, set PC to new value
+        .o_pc      (o_jmp_addr),
+        .o_br_taken(o_br_taken),
         // Input arguments
-        .i_arg1    (),
-        .i_arg2    (),
-        .i_op      (o_jmp_addr),
-        // Instruction
-        .i_instr   (i_instr)
+        .i_op      (decoded_op)
     );
 
 

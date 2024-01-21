@@ -131,7 +131,7 @@ module instr_decode #(
             end
 
             IL: begin
-                decode_v.store = 1;
+                decode_v.load = 1;
                 case (decode_v.funct3)
                     3'b000: decode_v.instruction = LB;
                     3'b001: decode_v.instruction = LH;
